@@ -11,7 +11,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/sirnewton01/gdblib"
+	"github.com/albfan/gdblib"
 	"go/build"
 	"io"
 	"log"
@@ -60,6 +60,7 @@ const (
 
 var (
 	srcDir    *string
+	sudo      *bool
 	autoOpen  *bool
 	gopath    string
 	gopaths   []string
@@ -79,6 +80,7 @@ func init() {
 		flag.PrintDefaults()
 	}
 	srcDir = flag.String("srcDir", "", "Location of the source code for the executable")
+	sudo = flag.Bool("sudo", false, "Launch debugger as root")
 	autoOpen = flag.Bool("openBrowser", true, "Automatically open a web browser when possible")
 
 	flag.Parse()
@@ -178,7 +180,7 @@ func main() {
 		}
 	}
 
-	mygdb, err := gdblib.NewGDB(execPath, *srcDir)
+	mygdb, err := gdblib.NewGDB(execPath, *srcDir, *sudo)
 	if err != nil {
 		panic(err)
 	}
