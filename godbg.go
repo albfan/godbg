@@ -602,24 +602,28 @@ func addFrameHandlers(mygdb *gdblib.GDB) {
 			return
 		}
 
-		path, err = filepath.Abs(path)
+		if *srcDir != "" {
+			path = *srcDir + "/" + strings.Replace(path, "../", "", -1)
+		} else {
+			path, err = filepath.Abs(path)
 
-		inGopath := false
-		for _, p := range gopaths {
-			if strings.HasPrefix(path, p) {
-				inGopath = true
-				break
+			inGopath := false
+			for _, p := range gopaths {
+				if strings.HasPrefix(path, p) {
+					inGopath = true
+					break
+				}
 			}
-		}
 
-		// If the path is not under the current directory or in the GOPATH/GOROOT then it is an illegal access
-		if !inGopath &&
-			!strings.HasPrefix(path, cwd) &&
-			!strings.HasPrefix(path, goroot) {
+			// If the path is not under the current directory or in the GOPATH/GOROOT then it is an illegal access
+			if !inGopath &&
+				!strings.HasPrefix(path, cwd) &&
+				!strings.HasPrefix(path, goroot) {
 
-			w.WriteHeader(400)
-			w.Write([]byte("Illegal file access"))
-			return
+				w.WriteHeader(400)
+				w.Write([]byte("Illegal file access"))
+				return
+			}
 		}
 
 		file, err := os.Open(path)
